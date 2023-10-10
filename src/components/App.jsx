@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import Searchbar from './Searchbar/Searchbar';
 import imagesApi from './services/ImagesApi';
@@ -7,105 +7,88 @@ import Loader from './Loader/Loader';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 
-export class App extends Component {
-  state = {
-    hits: [],
-    currentPage: 1,
-    searchQuery: '',
-    isLoading: false,
-    showModal: false,
-    largeImageURL: '',
-    tags: '',
-  };
+function App() {
+  const [query, setQuery] = useState('');
+  const [images, setImages] = useState([]);
+  const [largeImageURL, setLargeImageURL] = useState('');
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.fetchImages();
-    }
-  }
-
-  onChangeQuery = query => {
-    this.setState({
-      searchQuery: query,
-      currentPage: 1,
-      hits: [],
-      error: null,
-    });
-  };
-
-  fetchImages = () => {
-    const { currentPage, searchQuery } = this.state;
-    const options = { searchQuery, currentPage };
-
-    this.setState({ isLoading: true });
-
-    imagesApi
-      .fetchImages(options)
-      .then(hits => {
-        if (hits.length === 0) {
-          alert('That is it. Try something else!');
+  useEffect(() => {
+    if (!query) return;
+    const fetchImages = () => {
+      try {
+        const request = imagesApi(query, page);
+        if (request.length === 0) {
+          return setError(`No results were found for ${query}!`);
         }
-        this.setState(prevState => ({
-          hits: [...prevState.hits, ...hits],
-          currentPage: prevState.currentPage + 1,
-        }));
-      })
-      .then(() => {
-        if (this.state.currentPage > 2) {
-          window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth',
-          });
-        }
-      })
-      .catch(() => {
-        alert('Woops, something went wrong!');
-      })
-      .finally(() => this.setState({ isLoading: false }));
+        setImages(prevImages => [...prevImages, ...request]);
+      } catch (error) {
+        setError('Something went wrong. Try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, [page, query]);
+
+  const searchImages = newSearch => {
+    setQuery(newSearch);
+    setImages([]);
+    setPage(1);
+    setError(null);
+    setIsLoading(true);
   };
 
-  onModal = ({ largeImageURL, tags }) => {
-    this.setState({
-      largeImageURL: largeImageURL,
-      tags: tags,
-    });
-    this.toggleModal();
+  const onLoadMore = () => {
+    setIsLoading(true);
+    setPage(prevPage => prevPage + 1);
+    //scrollPage();
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  const onOpenModal = e => {
+    setLargeImageURL(e.target.dataset.source);
+    toggleModal();
   };
 
-  render() {
-    const { hits, isLoading, showModal, largeImageURL, tags } = this.state;
-    const shouldRenderLoadMoreButton = hits.length > 0 && !isLoading;
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
 
-    return (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gridGap: 16,
-          paddingBottom: 24,
-        }}
-      >
-        <Searchbar onSubmit={this.onChangeQuery} />
-        <ImageGallery hits={hits} onClick={this.onModal} />
+  // const scrollPage = () => {
+  //   setTimeout(() => {
+  //     window.scrollBy({
+  //       top: document.documentElement.clientHeight - 160,
+  //       behavior: 'smooth',
+  //     });
+  //   }, 800);
+  // };
 
-        {shouldRenderLoadMoreButton && (
-          <ButtonLoadMore onClick={this.fetchImages} />
-        )}
-
-        {isLoading && <Loader />}
-
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <img src={largeImageURL} alt={tags} />
-          </Modal>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gridGap: 16,
+        paddingBottom: 24,
+      }}
+    >
+      <Searchbar onHandleSubmit={searchImages} />
+      {images.length > 0 && !error && (
+        <ImageGallery images={images} onOpenModal={onOpenModal} />
+      )}
+      {isLoading && <Loader />}
+      {!isLoading && images.length >= 12 && !error && (
+        <ButtonLoadMore onLoadMore={onLoadMore} />
+      )}
+      {showModal && (
+        <Modal onCloseModal={toggleModal} largeImageURL={largeImageURL} />
+      )}
+    </div>
+  );
 }
+
+export default App;

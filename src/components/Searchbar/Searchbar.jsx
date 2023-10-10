@@ -1,45 +1,42 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import css from './Searchbar.module.css';
-class Searchbar extends Component {
-  state = {
-    query: '',
-  };
 
-  handleChange = e => {
-    this.setState({ query: e.currentTarget.value });
-  };
+function Searchbar({ onHandleSubmit }) {
+  const [query, setQuery] = useState('');
 
-  handleSubmit = e => {
+  // handleChange = e => {
+  //   this.setState({ query: e.currentTarget.value });
+  // };
+
+  const onSubmit = e => {
     e.preventDefault();
 
-    if (this.state.query.trim() === '') {
+    if (query.trim() === '') {
       return alert('Please, enter a request to start your search!');
     }
-    this.props.onSubmit(this.state.query);
-    this.setState({ query: '' });
+    onHandleSubmit(query);
+    setQuery('');
   };
 
-  render() {
-    return (
-      <header className={css.searchBar}>
-        <form className={css.searchForm} onSubmit={this.handleSubmit}>
-          <button type="submit" className={css.searchFormButton}>
-            <span className={css.searchFormButtonLabel}>Search</span>
-          </button>
+  return (
+    <header className={css.searchBar}>
+      <form className={css.searchForm} onSubmit={onSubmit}>
+        <button type="submit" className={css.searchFormButton}>
+          <span className={css.searchFormButtonLabel}>Search</span>
+        </button>
 
-          <input
-            className={css.searchFormInput}
-            value={this.state.query}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-            onChange={this.handleChange}
-          />
-        </form>
-      </header>
-    );
-  }
+        <input
+          className={css.searchFormInput}
+          value={query}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+          onChange={({ target }) => setQuery(target.value)}
+        />
+      </form>
+    </header>
+  );
 }
 
 export default Searchbar;
