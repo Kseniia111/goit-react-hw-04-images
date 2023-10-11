@@ -18,9 +18,10 @@ function App() {
 
   useEffect(() => {
     if (!query) return;
-    const fetchImages = () => {
+
+    const fetchImages = async () => {
       try {
-        const request = imagesApi(query, page);
+        const request = await imagesApi(query, page);
         if (request.length === 0) {
           return setError(`No results were found for ${query}!`);
         }
@@ -85,7 +86,7 @@ function App() {
         <ButtonLoadMore onLoadMore={onLoadMore} />
       )}
       {showModal && (
-        <Modal onCloseModal={toggleModal} largeImageURL={largeImageURL} />
+        <Modal onToggleModal={toggleModal} largeImageURL={largeImageURL} />
       )}
     </div>
   );

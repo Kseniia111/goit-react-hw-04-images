@@ -1,7 +1,7 @@
 import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 import css from './ImageGallery.module.css';
 
-const ImageGallery = ({ images, onClick }) => {
+const ImageGallery = ({ images, onOpenModal }) => {
   return (
     <ul className={css.imageGallery}>
       {images.map(({ id, tags, webformatURL, largeImageURL }) => (
@@ -10,7 +10,7 @@ const ImageGallery = ({ images, onClick }) => {
           tags={tags}
           webformatURL={webformatURL}
           largeImageURL={largeImageURL}
-          onClick={onClick}
+          onOpenModal={onOpenModal}
         />
       ))}
     </ul>
@@ -18,9 +18,10 @@ const ImageGallery = ({ images, onClick }) => {
 };
 
 export default ImageGallery;
+
 // export class ImageGallery extends Component {
 //   render() {
-//     const { images, onImageClick } = this.props;
+//     const { images, onOpenModal } = this.props;
 //     return (
 //       <ul className={css.imageGallery}>
 //         {images.map(({ id, webformatURL, largeImageURL }) => (
@@ -28,7 +29,7 @@ export default ImageGallery;
 //             key={id}
 //             webformatURL={webformatURL}
 //             largeImageURL={largeImageURL}
-//             onImageClick={onImageClick}
+//             onOpenModal={onOpenModal}
 //           />
 //         ))}
 //       </ul>

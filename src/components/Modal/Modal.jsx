@@ -1,34 +1,33 @@
 import { useEffect } from 'react';
 import css from './Modal.module.css';
 
-const Modal = ({ onCloseModal, children }) => {
+function Modal({ largeImageURL, onToggleModal }) {
   useEffect(() => {
+    const handleKeyDown = e => {
+      if (e.code === 'Escape') {
+        onToggleModal();
+      }
+    };
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  });
-
-  const handleKeyDown = e => {
-    if (e.code === 'Escape') {
-      onCloseModal();
-    }
-  };
+  }, [onToggleModal]);
 
   const handleBackdropClick = e => {
-    if (e.target === e.currentTarget) {
-      onCloseModal();
+    if (e.currentTarget === e.target) {
+      onToggleModal();
     }
   };
 
   return (
     <div className={css.overlay} onClick={handleBackdropClick}>
-      <div className={css.modal}>{children}</div>
+      <div className={css.modal}>
+        <img src={largeImageURL} alt="" />
+      </div>
     </div>
   );
-};
-
+}
 export default Modal;
 
 // const Modal = {
