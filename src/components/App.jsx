@@ -23,11 +23,11 @@ function App() {
       try {
         const request = await imagesApi(query, page);
         if (request.length === 0) {
-          return setError(`No results were found for ${query}!`);
+          return alert(`That is it. Try something else!`);
         }
         setImages(prevImages => [...prevImages, ...request]);
       } catch (error) {
-        setError('Something went wrong. Try again.');
+        alert('Something went wrong. Try again.');
       } finally {
         setIsLoading(false);
       }
@@ -47,11 +47,11 @@ function App() {
   const onLoadMore = () => {
     setIsLoading(true);
     setPage(prevPage => prevPage + 1);
-    //scrollPage();
+    scrollPage();
   };
 
-  const onOpenModal = e => {
-    setLargeImageURL(e.target.dataset.source);
+  const onOpenModal = ({ largeImageURL }) => {
+    setLargeImageURL(largeImageURL);
     toggleModal();
   };
 
@@ -59,14 +59,12 @@ function App() {
     setShowModal(!showModal);
   };
 
-  // const scrollPage = () => {
-  //   setTimeout(() => {
-  //     window.scrollBy({
-  //       top: document.documentElement.clientHeight - 160,
-  //       behavior: 'smooth',
-  //     });
-  //   }, 800);
-  // };
+  const scrollPage = () => {
+    window.scrollBy({
+      top: document.documentElement.clientHeight - 160,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <div
