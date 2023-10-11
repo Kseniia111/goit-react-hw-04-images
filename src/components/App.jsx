@@ -61,7 +61,7 @@ function App() {
 
   const scrollPage = () => {
     window.scrollBy({
-      top: document.documentElement.clientHeight - 160,
+      top: document.documentElement.clientHeight,
       behavior: 'smooth',
     });
   };
